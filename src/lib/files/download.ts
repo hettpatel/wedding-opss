@@ -23,5 +23,15 @@ export function base64ToBlob(base64: string, mimeType: string): Blob {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return new Blob([bytes], { type: mimeType });
+  return bytesToBlob(bytes, mimeType);
+}
+
+/**
+ * Copies the bytes into a plain ArrayBuffer before making the Blob. A Uint8Array view is
+ * not accepted as a BlobPart, because its underlying buffer could be shared memory.
+ */
+export function bytesToBlob(bytes: Uint8Array, mimeType: string): Blob {
+  const buffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(buffer).set(bytes);
+  return new Blob([buffer], { type: mimeType });
 }

@@ -9,18 +9,21 @@ export function useTasks(): WeddingTask[] | undefined {
 }
 
 export function useTaskComments(taskId: string | null): TaskComment[] | undefined {
-  return useLiveQuery(
-    () => (taskId ? getDb().taskComments.where('taskId').equals(taskId).toArray() : Promise.resolve([])),
+  return useLiveQuery<TaskComment[]>(
+    () =>
+      taskId
+        ? getDb().taskComments.where('taskId').equals(taskId).toArray()
+        : Promise.resolve<TaskComment[]>([]),
     [taskId]
   );
 }
 
 export function useTaskAttachments(taskId: string | null): TaskAttachment[] | undefined {
-  return useLiveQuery(
+  return useLiveQuery<TaskAttachment[]>(
     () =>
       taskId
         ? getDb().taskAttachments.where('taskId').equals(taskId).toArray()
-        : Promise.resolve([]),
+        : Promise.resolve<TaskAttachment[]>([]),
     [taskId]
   );
 }

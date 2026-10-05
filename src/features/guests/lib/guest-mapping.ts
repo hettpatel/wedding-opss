@@ -69,7 +69,7 @@ export function formValuesToGuest(
   };
 
   if (options.existing) {
-    return touchRecord(options.existing, common);
+    return touchRecord<GuestHousehold>(options.existing, common);
   }
 
   return createRecord<GuestHousehold>({
@@ -114,7 +114,7 @@ export function applyDraftToExisting(
   draft: GuestDraft,
   importBatchId: string
 ): GuestHousehold {
-  return touchRecord(existing, {
+  return touchRecord<GuestHousehold>(existing, {
     primaryGuestName: draft.primaryGuestName,
     invitationDisplayName: draft.invitationDisplayName,
     rawPhone: draft.rawPhone,

@@ -4,6 +4,7 @@ import {
   percentBoxToPdfRect,
   type PixelBox,
 } from '@/lib/format/coordinates';
+import { bytesToBlob } from '@/lib/files/download';
 import { fitTextToBox, type FitResult } from './fit-text';
 import { embedChosenFont } from './font-loader';
 import type { InvitationTemplate } from '@/lib/models';
@@ -93,7 +94,7 @@ export async function generateInvitationPdf(
   const bytes = await pdf.save();
   return {
     bytes,
-    blob: new Blob([bytes], { type: 'application/pdf' }),
+    blob: bytesToBlob(bytes, 'application/pdf'),
     fit,
     shrunk: fit.fits && fit.fontSize < template.placement.fontSize,
     overflowWarning: fit.fits ? null : fit.overflowReason,

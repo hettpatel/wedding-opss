@@ -95,7 +95,7 @@ export function formValuesToTask(
   if (options.existing) {
     const wasCompleted = options.existing.status === 'Completed';
     const isCompleted = values.status === 'Completed';
-    return touchRecord(options.existing, {
+    return touchRecord<WeddingTask>(options.existing, {
       ...common,
       // Keep the original completion time when an already-finished task is edited.
       completedAt: isCompleted ? (wasCompleted ? options.existing.completedAt : nowIso()) : null,

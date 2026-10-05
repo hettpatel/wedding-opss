@@ -51,7 +51,7 @@ export async function recordDispatchEvent(
     if (!current) return;
 
     const snapshot: GuestHousehold = { ...current };
-    const updated = touchRecord(
+    const updated = touchRecord<GuestHousehold>(
       current,
       applyDispatchEvent(current, event, at, options.errorMessage)
     );

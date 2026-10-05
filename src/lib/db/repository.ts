@@ -41,7 +41,7 @@ export class DexieRepository<T extends BaseRecord> implements Repository<T> {
   async update(id: string, changes: Partial<T>): Promise<T | undefined> {
     const existing = await this.table.get(id);
     if (!existing) return undefined;
-    const next = touchRecord(existing, changes);
+    const next = touchRecord<T>(existing, changes);
     await this.table.put(next);
     return next;
   }
