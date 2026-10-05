@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Static export keeps hosting free (GitHub Pages, Netlify, Cloudflare Pages, a USB stick + any static server).
-  output: 'export',
+  output: 'standalone',
   trailingSlash: true,
   reactStrictMode: true,
   images: { unoptimized: true },
+  webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    return config;
+  },
 };
 
 export default nextConfig;
+

@@ -1,0 +1,6 @@
+{
+  "name": "Wedding Ops",
+  "description": "Personal wedding task, guest and invitation manager. Works offline.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

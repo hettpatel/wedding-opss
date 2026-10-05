@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Eye, Loader2 } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -48,6 +48,8 @@ export function PlacementEditor({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [measurer, setMeasurer] = useState<FontMeasurer | null>(null);
   const [testOpen, setTestOpen] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ mode: 'move' | 'resize'; x: number; y: number; box: PercentBox } | null>(
     null
@@ -61,14 +63,43 @@ export function PlacementEditor({
   }, [template.id]);
 
   useEffect(() => {
+    let active = true;
+
     if (template.mimeType === 'application/pdf') {
-      setPreviewUrl(null);
-      return undefined;
+      setPdfLoading(true);
+      setPdfError(null);
+      void (async () => {
+        try {
+          const { renderPdfPageToDataUrl } = await import('@/lib/pdf/pdf-renderer');
+          const dataUrl = await renderPdfPageToDataUrl(
+            template.data,
+            placement.pageNumber || 1,
+            1400
+          );
+          if (active) {
+            setPreviewUrl(dataUrl);
+            setPdfLoading(false);
+          }
+        } catch (err) {
+          if (active) {
+            console.error('Failed to render PDF page preview:', err);
+            setPdfError('Could not render PDF card image. You can still set the position using the fields below.');
+            setPdfLoading(false);
+          }
+        }
+      })();
+      return () => {
+        active = false;
+      };
     }
+
     const url = URL.createObjectURL(template.data);
     setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [template.data, template.mimeType]);
+    return () => {
+      active = false;
+      URL.revokeObjectURL(url);
+    };
+  }, [template.data, template.mimeType, placement.pageNumber]);
 
   // The same font the PDF will embed, so the fit shown here matches the file exactly.
   useEffect(() => {
@@ -188,7 +219,7 @@ export function PlacementEditor({
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
-        className="template-surface relative w-full select-none overflow-hidden rounded-card border border-hairline bg-white"
+        className="template-surface relative w-full select-none overflow-hidden rounded-card border border-hairline bg-white shadow-xs"
         style={{ aspectRatio: String(aspect) }}
       >
         {previewUrl ? (
@@ -196,13 +227,17 @@ export function PlacementEditor({
           <img
             src={previewUrl}
             alt="Your invitation card"
-            className="h-full w-full object-contain"
+            className="pointer-events-none h-full w-full select-none object-contain"
             draggable={false}
           />
+        ) : pdfLoading ? (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface px-6 text-center text-sm text-muted">
+            <Loader2 className="h-6 w-6 animate-spin text-crimson" />
+            <span>Rendering PDF card…</span>
+          </div>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-surface px-6 text-center text-sm text-muted">
-            A PDF card cannot be shown here. Set the position below, then use “Try a name” to see
-            the real result.
+            {pdfError || 'A card preview is not available.'}
           </div>
         )}
 
@@ -212,7 +247,7 @@ export function PlacementEditor({
           aria-label="Guest name area. Drag to move, or use the arrow keys. Hold shift with the arrows to resize."
           onPointerDown={onPointerDown('move')}
           onKeyDown={onKeyDown}
-          className="absolute cursor-move border-2 border-dashed border-crimson bg-crimson/5"
+          className="absolute cursor-move border-2 border-dashed border-crimson bg-crimson/10 touch-none select-none transition-shadow hover:shadow-md active:bg-crimson/20"
           style={{
             left: `${placement.xPct}%`,
             top: `${placement.yPct}%`,
@@ -220,12 +255,12 @@ export function PlacementEditor({
             height: `${placement.heightPct}%`,
           }}
         >
-          <span className="absolute -top-5 left-0 rounded bg-crimson px-1.5 text-[10px] font-semibold text-white">
+          <span className="pointer-events-none absolute -top-5 left-0 rounded bg-crimson px-1.5 text-[10px] font-semibold text-white shadow-xs">
             GUEST NAME
           </span>
 
           <span
-            className="flex h-full w-full flex-col justify-center px-1 leading-tight"
+            className="pointer-events-none flex h-full w-full select-none flex-col justify-center overflow-hidden px-1 leading-tight"
             style={{
               alignItems:
                 placement.align === 'center'
@@ -247,9 +282,89 @@ export function PlacementEditor({
 
           <span
             onPointerDown={onPointerDown('resize')}
-            aria-hidden
-            className="absolute -bottom-2 -right-2 h-5 w-5 cursor-se-resize rounded-full border-2 border-white bg-crimson"
-          />
+            aria-label="Resize box"
+            className="absolute -bottom-3 -right-3 flex h-7 w-7 cursor-se-resize items-center justify-center rounded-full border-2 border-white bg-crimson text-[10px] font-bold text-white shadow-md touch-none"
+          >
+            ⤡
+          </span>
+        </div>
+      </div>
+
+      {/* Quick Touch Controls for Mobile */}
+      <div className="space-y-2 rounded-lg border border-hairline bg-surface/60 p-2.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-ink">Touch Nudge & Align</span>
+          <span className="text-[11px] text-muted">
+            X: {round(placement.xPct)}% · Y: {round(placement.yPct)}% · W: {round(placement.widthPct)}%
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex items-center rounded border border-hairline bg-white shadow-xs">
+            <button
+              type="button"
+              className="p-2 text-ink hover:bg-surface active:bg-hairline"
+              aria-label="Nudge left"
+              onClick={() => updateBox({ xPct: placement.xPct - 1 })}
+              title="Move left"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              className="p-2 text-ink hover:bg-surface active:bg-hairline"
+              aria-label="Nudge up"
+              onClick={() => updateBox({ yPct: placement.yPct - 1 })}
+              title="Move up"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              className="p-2 text-ink hover:bg-surface active:bg-hairline"
+              aria-label="Nudge down"
+              onClick={() => updateBox({ yPct: placement.yPct + 1 })}
+              title="Move down"
+            >
+              <ArrowDown className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              className="p-2 text-ink hover:bg-surface active:bg-hairline"
+              aria-label="Nudge right"
+              onClick={() => updateBox({ xPct: placement.xPct + 1 })}
+              title="Move right"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="rounded border border-hairline bg-white px-2.5 py-1.5 text-xs font-medium text-ink shadow-xs hover:bg-surface active:bg-hairline"
+            onClick={() => updateBox({ xPct: (100 - placement.widthPct) / 2 })}
+          >
+            Center Horizontally
+          </button>
+
+          <div className="flex items-center rounded border border-hairline bg-white shadow-xs">
+            <button
+              type="button"
+              className="px-2 py-1.5 text-xs font-medium text-ink hover:bg-surface active:bg-hairline"
+              onClick={() => updateBox({ widthPct: placement.widthPct - 2 })}
+              title="Narrower"
+            >
+              Narrower
+            </button>
+            <div className="h-4 w-px bg-hairline" />
+            <button
+              type="button"
+              className="px-2 py-1.5 text-xs font-medium text-ink hover:bg-surface active:bg-hairline"
+              onClick={() => updateBox({ widthPct: placement.widthPct + 2 })}
+              title="Wider"
+            >
+              Wider
+            </button>
+          </div>
         </div>
       </div>
 

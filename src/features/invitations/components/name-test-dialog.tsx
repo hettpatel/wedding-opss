@@ -62,11 +62,14 @@ export function NameTestDialog({
   }, [name, template]);
 
   useEffect(() => {
+    if (open && !result && !busy && name.trim()) {
+      void build();
+    }
     if (!open) {
       setResult(null);
       setError(null);
     }
-  }, [open]);
+  }, [open, build, result, busy, name]);
 
   if (!open) return null;
 

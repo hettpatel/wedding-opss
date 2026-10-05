@@ -4,7 +4,7 @@
   "private": true,
   "description": "Personal wedding operations and invitation manager (offline-first PWA). Single-user, non-commercial.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000 -H 0.0.0.0",
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
@@ -22,6 +22,7 @@
     "lucide-react": "^0.468.0",
     "next": "14.2.18",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "3.11.174",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.0",
