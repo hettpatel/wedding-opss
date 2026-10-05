@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ivory text-ink font-sans antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  h1, h2, h3 {
+    @apply font-serif text-ink;
+  }
+
+  :focus-visible {
+    outline: 3px solid #800020;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  input, select, textarea {
+    font-size: 16px; /* stops mobile browsers zooming in on focus */
+  }
+}
+
+@layer components {
+  .app-card {
+    @apply rounded-card border border-hairline bg-white shadow-card;
+  }
+
+  /* Lets the sample name scale with the preview using cqw units. */
+  .template-surface {
+    container-type: inline-size;
+  }
+
+  /* Reserves room for the fixed bottom navigation so it never covers form fields. */
+  .page-scroll {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

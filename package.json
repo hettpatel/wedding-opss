@@ -1,0 +1,44 @@
+{
+  "name": "kahoda-wedding-ops",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal wedding operations and invitation manager (offline-first PWA). Single-user, non-commercial.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "dexie": "^4.0.10",
+    "dexie-react-hooks": "^1.1.7",
+    "lucide-react": "^0.468.0",
+    "next": "14.2.18",
+    "pdf-lib": "^1.17.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.0",
+    "tailwind-merge": "^2.5.5",
+    "xlsx": "^0.18.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.9",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
